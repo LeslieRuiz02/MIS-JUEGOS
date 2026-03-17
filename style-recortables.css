@@ -69,11 +69,19 @@ header p {
     margin: 0 auto;
 }
 
-.recortable p {
+.recortable p.nombre {
     font-size: 1.5em;
     font-weight: bold;
     color: #333;
     margin-top: 15px;
+    margin-bottom: 5px;
+}
+
+.recortable p.tipo {
+    font-size: 1.1em;
+    color: #666;
+    margin-top: 0;
+    font-style: italic;
 }
 
 /* Estilos específicos para la impresión */
