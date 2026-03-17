@@ -1,0 +1,92 @@
+body {
+    font-family: 'Comic Sans MS', cursive, sans-serif; /* Un toque más infantil */
+    background-color: #fffacd; /* Un amarillo pastel agradable */
+    color: #333;
+    text-align: center;
+    margin: 0;
+    padding: 20px;
+}
+
+header {
+    margin-bottom: 30px;
+}
+
+h1 {
+    color: #ff69b4; /* Rosa chicle para llamar la atención */
+    font-size: 2.5em;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+header p {
+    font-size: 1.2em;
+    color: #555;
+    font-style: italic;
+}
+
+#imprimirBtn {
+    background-color: #4CAF50; /* Verde brillante */
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    font-weight: bold;
+    margin: 10px 2px;
+    cursor: pointer;
+    border: none;
+    border-radius: 50px; /* Botón redondeado */
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    transition: 0.3s;
+}
+
+#imprimirBtn:hover {
+    background-color: #45a049;
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+    transform: translateY(-2px); /* Pequeño efecto de elevación al pasar el ratón */
+}
+
+.galeria-recortables {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 30px;
+}
+
+.recortable {
+    background-color: white;
+    border: 3px dashed #ccc; /* Línea punteada para indicar "cortar aquí" */
+    border-radius: 15px;
+    padding: 20px;
+    width: 300px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.recortable img {
+    width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+.recortable p {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #333;
+    margin-top: 15px;
+}
+
+/* Estilos específicos para la impresión */
+@media print {
+    body {
+        background-color: white;
+    }
+    header button {
+        display: none; /* Ocultar el botón al imprimir */
+    }
+    .recortable {
+        border-color: black; /* Línea de corte más clara en papel */
+        box-shadow: none;
+        break-inside: avoid; /* Evitar que el recortable se parta entre dos páginas */
+    }
+}
