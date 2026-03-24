@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Memorama Marino</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', 'Helvetica Rounded', sans-serif;
+            background: linear-gradient(180deg, #87CEEB 0%, #1E90FF 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            margin: 10px 0 20px 0;
+            padding: 0 10px;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 12px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            max-width: 95vw;
+        }
+
+        .card {
+            width: 75px;
+            height: 95px;
+            perspective: 1000px;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        @media (min-width: 450px) {
+            .card {
+                width: 90px;
+                height: 110px;
+            }
+            .game-board {
+                gap: 15px;
+            }
+        }
+
+        @media (min-width: 600px) {
+            .card {
+                width: 120px;
+                height: 150px;
+            }
+            h1 {
+                font-size: 3.5rem;
+            }
+        }
+
+        .card-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transform-style: preserve-3d;
+            border-radius: 20px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .card.flipped .card-inner,
+        .card.matched .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front,
+        .card-back {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            border-radius: 20px;
+            border: 5px solid white;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        @media (min-width: 600px) {
+            .card-front,
+            .card-back {
+                font-size: 5rem;
+            }
+        }
+
+        /* Dorso de la carta (lo que se ve antes de voltear) */
+        .card-back {
+            background-color: #FFB6C1;
+            background-image: 
+                radial-gradient(circle at 50% 50%, #FF69B4 20%, transparent 21%),
+                radial-gradient(circle at 100% 100%, #FF69B4 20%, transparent 21%);
+            background-size: 30px 30px;
+            transform: rotateY(0deg);
+        }
+
+        /* Frente de la carta (imagen del animal) */
+        .card-front {
+            background-color: #f0f8ff;
+            transform: rotateY(180deg);
+        }
+
+        .card.matched .card-front {
+            background-color: #98FB98; /* Verde claro vibrante al encontrar par */
+            border-color: #32CD32;
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: rotateY(180deg) scale(1); }
+            50% { transform: rotateY(180deg) scale(1.15); }
+            100% { transform: rotateY(180deg) scale(1); }
+        }
+
+        button.reset-btn {
+            margin-top: 25px;
+            margin-bottom: 20px;
+            padding: 15px 35px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            background-color: #FF6347;
+            border: 4px solid #FF4500;
+            border-radius: 35px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #CD5C5C, 0 10px 15px rgba(0,0,0,0.2);
+            transition: all 0.1s;
+            font-family: inherit;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button.reset-btn:active {
+            transform: translateY(6px);
+            box-shadow: 0 0 0 #CD5C5C, 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .congratulations {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            color: #FF4500;
+            padding: 30px;
+            border-radius: 30px;
+            text-align: center;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.4);
+            display: none;
+            z-index: 100;
+            border: 8px dashed #32CD32;
+            width: 80%;
+            max-width: 400px;
+        }
+
+        .congratulations h2 {
+            font-size: 2.5rem;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .congratulations p {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 25px;
+        }
+
+        .congratulations.show {
+            display: block;
+            animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+            70% { transform: translate(-50%, -50%) scale(0.9); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+        
+    </style>
+</head>
+<body>
+
+    <h1>Memorama Marino 🌊</h1>
+    <div class="game-board" id="board">
+        <!-- Las cartas se generan dinámicamente aquí -->
+    </div>
+    <button class="reset-btn" onclick="startGame()">¡Revolver!</button>
+
+    <div class="congratulations" id="congrats">
+        <h2>¡Bravo! 🎉</h2>
+        <p>¡Eres un genio del mar!</p>
+        <button class="reset-btn" onclick="document.getElementById('congrats').classList.remove('show'); startGame();">Volver a Jugar</button>
+    </div>
+
+    <script>
+        const animales = [
+            { id: 'ballena', symbol: '🐳' },
+            { id: 'delfin', symbol: '🐬' },
+            { id: 'pulpo', symbol: '🐙' },
+            { id: 'tortuga', symbol: '🐢' },
+            { id: 'cangrejo', symbol: '🦀' },
+            { id: 'estrella', symbol: '⭐' }
+        ];
+
+        let cartasVolteadas = [];
+        let paresEncontrados = 0;
+        let tableroBloqueado = false;
+        
+        let audioCtx;
+
+        // Iniciar el contexto de audio solo tras la primera interacción
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if(audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        // Sonido alegre de acierto (arpegio mayor)
+        function playSuccessSound() {
+            try {
+                initAudio();
+                const playNote = (frequency, startTime, duration) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    
+                    osc.type = 'triangle'; 
+                    osc.frequency.value = frequency;
+                    
+                    gain.gain.setValueAtTime(0, startTime);
+                    gain.gain.linearRampToValueAtTime(0.3, startTime + duration * 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+                    
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    
+                    osc.start(startTime);
+                    osc.stop(startTime + duration);
+                };
+
+                const now = audioCtx.currentTime;
+                playNote(523.25, now, 0.4);       // Do
+                playNote(659.25, now + 0.15, 0.4); // Mi
+                playNote(783.99, now + 0.3, 0.4);  // Sol
+                playNote(1046.50, now + 0.45, 0.6); // Do (agudo)
+            } catch (e) { console.log(e); }
+        }
+
+        // Sonido de victoria final
+        function playWinSound() {
+            try {
+                initAudio();
+                const playNote = (frequency, startTime, duration) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.value = frequency;
+                    gain.gain.setValueAtTime(0, startTime);
+                    gain.gain.linearRampToValueAtTime(0.3, startTime + duration * 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(startTime);
+                    osc.stop(startTime + duration);
+                };
+                const now = audioCtx.currentTime;
+                playNote(440.00, now, 0.3);
+                playNote(554.37, now + 0.2, 0.3);
+                playNote(659.25, now + 0.4, 0.3);
+                playNote(880.00, now + 0.6, 1.0);
+            } catch (e) { console.log(e); }
+        }
+
+        // Sonidito suave al voltear carta
+        function playFlipSound() {
+            try {
+                initAudio();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.1);
+                
+                gain.gain.setValueAtTime(0, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.05);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(audioCtx.currentTime);
+                osc.stop(audioCtx.currentTime + 0.1);
+            } catch(e){}
+        }
+
+        function mezclar(array) {
+            let actual = array.length, aleatorio;
+            while (actual !== 0) {
+                aleatorio = Math.floor(Math.random() * actual);
+                actual--;
+                [array[actual], array[aleatorio]] = [array[aleatorio], array[actual]];
+            }
+            return array;
+        }
+
+        function generarTablero() {
+            const tablero = document.getElementById('board');
+            tablero.innerHTML = '';
+            
+            // Duplicar los animales para formar los pares
+            const mazoCartas = [...animales, ...animales];
+            mezclar(mazoCartas);
+
+            mazoCartas.forEach((animal) => {
+                const elementoCarta = document.createElement('div');
+                elementoCarta.classList.add('card');
+                elementoCarta.dataset.animal = animal.id;
+
+                elementoCarta.innerHTML = `
+                    <div class="card-inner">
+                        <div class="card-back"></div>
+                        <div class="card-front">${animal.symbol}</div>
+                    </div>
+                `;
+
+                elementoCarta.addEventListener('click', voltearCarta);
+                tablero.appendChild(elementoCarta);
+            });
+        }
+
+        function voltearCarta() {
+            initAudio(); // Garantizar que el sonido esté listo
+
+            if (tableroBloqueado) return;
+            if (this.classList.contains('flipped') || this.classList.contains('matched')) return;
+
+            playFlipSound();
+            this.classList.add('flipped');
+            cartasVolteadas.push(this);
+
+            if (cartasVolteadas.length === 2) {
+                verificarPar();
+            }
+        }
+
+        function verificarPar() {
+            tableroBloqueado = true;
+            const [carta1, carta2] = cartasVolteadas;
+            const parEncontrado = carta1.dataset.animal === carta2.dataset.animal;
+
+            if (parEncontrado) {
+                setTimeout(() => {
+                    carta1.classList.add('matched');
+                    carta2.classList.add('matched');
+                    playSuccessSound();
+                    paresEncontrados++;
+                    reiniciarTurno();
+                    verificarVictoria();
+                }, 500); // Esperar que termine la animación de voltear
+            } else {
+                // Si se equivocan, voltear de regreso
+                setTimeout(() => {
+                    carta1.classList.remove('flipped');
+                    carta2.classList.remove('flipped');
+                    reiniciarTurno();
+                }, 1200); // Dar suficiente tiempo para que el niño vea ambas cartas
+            }
+        }
+
+        function reiniciarTurno() {
+            cartasVolteadas = [];
+            tableroBloqueado = false;
+        }
+
+        function verificarVictoria() {
+            if (paresEncontrados === animales.length) {
+                setTimeout(() => {
+                    playWinSound();
+                    document.getElementById('congrats').classList.add('show');
+                }, 600);
+            }
+        }
+
+        function startGame() {
+            paresEncontrados = 0;
+            cartasVolteadas = [];
+            tableroBloqueado = false;
+            document.getElementById('congrats').classList.remove('show');
+            generarTablero();
+        }
+
+        // Iniciar el juego al cargar la página
+        startGame();
+    </script>
+</body>
+</html>
