@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>¡A Limpiar los Dientes!</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Título -->
+        <header>
+            <h1>¡Limpia los dientes!</h1>
+            <p id="instruction-text">Primero, ¡enjuaga tu cepillo!</p>
+        </header>
+
+        <!-- Área del Personaje -->
+        <main class="character-area">
+            <div class="character-face">
+                <div class="eyes">
+                    <div class="eye"><div class="pupil"></div></div>
+                    <div class="eye"><div class="pupil"></div></div>
+                </div>
+                <div class="mouth open">
+                    <div class="teeth-top">
+                        <div class="tooth"><div class="dirt"></div></div>
+                        <div class="tooth"><div class="dirt"></div></div>
+                        <div class="tooth"><div class="dirt"></div></div>
+                        <div class="tooth"><div class="dirt"></div></div>
+                    </div>
+                    <div class="tongue">
+                        <div class="dirt"></div>
+                    </div>
+                    <div class="teeth-bottom">
+                        <div class="tooth"><div class="dirt"></div></div>
+                        <div class="tooth"><div class="dirt"></div></div>
+                        <div class="tooth"><div class="dirt"></div></div>
+                        <div class="tooth"><div class="dirt"></div></div>
+                    </div>
+                    
+                    <!-- Capa para el emoji animado -->
+                    <div id="animation-layer" class="hidden"></div>
+                </div>
+            </div>
+            
+            <!-- Contenedor confeti -->
+            <div id="confetti-container" class="hidden"></div>
+        </main>
+
+        <!-- Botonera -->
+        <nav class="action-buttons">
+            <button id="btn-step-1" class="action-btn active" onclick="handleStep(1)">
+                <span class="emoji">🚰</span>
+                <span class="btn-text">Enjuagar Cepillo</span>
+            </button>
+            <button id="btn-step-2" class="action-btn locked" onclick="handleStep(2)">
+                <span class="emoji">🧴</span>
+                <span class="btn-text">Poner Pasta</span>
+            </button>
+            <button id="btn-step-3" class="action-btn locked" onclick="handleStep(3)">
+                <span class="emoji">🪥</span>
+                <span class="btn-text">¡Cepillar!</span>
+            </button>
+            <button id="btn-step-4" class="action-btn locked" onclick="handleStep(4)">
+                <span class="emoji">💦</span>
+                <span class="btn-text">Enjuagar Boca</span>
+            </button>
+        </nav>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
